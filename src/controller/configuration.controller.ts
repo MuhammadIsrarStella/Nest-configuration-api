@@ -11,25 +11,25 @@ export class ConfigurationController {
   @Post()
   @UsePipes(new ValidationPipe())
   async createConfiguration( @Body() dto: UpdateConfigurationDto ): Promise<{ message: string; configuration: Configuration }> {
-    return this.configService.createConfigurations(dto);
+    return await this.configService.createConfigurations(dto);
   }
 
   @Put()
   @UsePipes(new ValidationPipe())
   async updateConfiguration( @Body() dto: UpdateConfigurationDto ): Promise<{ message: string; configuration: Configuration }> {
-    return this.configService.updateConfigurations(dto);
+    return await this.configService.updateConfigurations(dto);
   }
 
   @Get()
   async getConfigurations( @Query('androidVersion') androidVersion?: string ): Promise<Configuration | Configuration[]> {
     if (androidVersion) {
-      return this.configService.getConfigurationByAndroidVersion(androidVersion);
+      return await this.configService.getConfigurationByAndroidVersion(androidVersion);
     }
-    return this.configService.getAllConfigurations();
+    return await this.configService.getAllConfigurations();
   }
 
   @Delete(':id')
   async deleteConfiguration(@Param('id') id: string): Promise<{ message: string }> {
-    return this.configService.deleteConfiguration(id);
+    return await this.configService.deleteConfiguration(id);
   }
 }
