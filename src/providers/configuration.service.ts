@@ -1,23 +1,36 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, ConflictException } from '@nestjs/common';
 import { ConfigurationRepository } from './configuration.repository';
-import { UpdateConfigurationDto } from '../dto/update-configuration.dto';
-import { Configuration } from '../schemas/configuration.schema';
+import { UpdateConfigurationDto } from 'src/dto/update-configuration.dto';
+import { Configuration } from 'src/schemas/configuration.schema';
+
 
 @Injectable()
 export class ConfigurationService {
   constructor(private readonly configRepository: ConfigurationRepository) {}
 
-  // Create a new configuration
-  async createConfiguration(dto: UpdateConfigurationDto): Promise<Configuration> {
-    return this.configRepository.create({
+  async createConfiguration(dto: UpdateConfigurationDto): Promise<{ message: string; configuration: Configuration }> {
+    const existingConfig = await this.configRepository.findByAndroidVersion(dto.androidVersion);
+
+    if (existingConfig) {
+      throw new ConflictException(
+        `Configuration with Android version ${dto.androidVersion} already exists. ` +
+        `Please add another record or update this record if you want.`
+      );
+    }
+
+    const newConfig = await this.configRepository.create({
       androidVersion: dto.androidVersion,
       webVersion: dto.webVersion,
       dateTime: new Date(dto.dateTime),
     });
+
+    return {
+      message: 'Configuration created successfully',
+      configuration: newConfig,
+    };
   }
 
-  // Update an existing configuration
-  async updateConfiguration(dto: UpdateConfigurationDto): Promise<Configuration> {
+  async updateConfiguration(dto: UpdateConfigurationDto): Promise<{ message: string; configuration: Configuration }> {
     const existingConfig = await this.configRepository.findByAndroidVersion(dto.androidVersion);
 
     if (!existingConfig) {
@@ -26,10 +39,22 @@ export class ConfigurationService {
 
     existingConfig.webVersion = dto.webVersion;
     existingConfig.dateTime = new Date(dto.dateTime);
-    return existingConfig.save();
+    const updatedConfig = await existingConfig.save();
+
+    return {
+      message: 'Configuration updated successfully',
+      configuration: updatedConfig,
+    };
   }
 
-  // Get a specific configuration by Android version
+  async deleteConfiguration(id: string): Promise<{ message: string }> {
+    const result = await this.configRepository.deleteById(id);
+    if (result.deletedCount === 0) {
+      throw new NotFoundException(`Configuration with ID ${id} not found`);
+    }
+    return { message: `Configuration with ID ${id} has been deleted successfully.` };
+  }
+
   async getConfigurationByAndroidVersion(androidVersion: string): Promise<Configuration> {
     const config = await this.configRepository.findByAndroidVersion(androidVersion);
     if (!config) {
@@ -38,7 +63,6 @@ export class ConfigurationService {
     return config;
   }
 
-  // Get all configurations
   async getAllConfigurations(): Promise<Configuration[]> {
     return this.configRepository.getAll();
   }
