@@ -8,7 +8,7 @@ import { Configuration } from 'src/schemas/configuration.schema';
 export class ConfigurationService {
   constructor(private readonly configRepository: ConfigurationRepository) {}
 
-  async createConfiguration(dto: UpdateConfigurationDto): Promise<{ message: string; configuration: Configuration }> {
+  async createConfigurations(dto: UpdateConfigurationDto): Promise<{ message: string; configuration: Configuration }> {
     const existingConfig = await this.configRepository.findByAndroidVersion(dto.androidVersion);
 
     if (existingConfig) {
@@ -30,7 +30,7 @@ export class ConfigurationService {
     };
   }
 
-  async updateConfiguration(dto: UpdateConfigurationDto): Promise<{ message: string; configuration: Configuration }> {
+  async updateConfigurations(dto: UpdateConfigurationDto): Promise<{ message: string; configuration: Configuration }> {
     const existingConfig = await this.configRepository.findByAndroidVersion(dto.androidVersion);
 
     if (!existingConfig) {
@@ -48,7 +48,7 @@ export class ConfigurationService {
   }
 
   async deleteConfiguration(id: string): Promise<{ message: string }> {
-    const result = await this.configRepository.deleteById(id);
+    const result = await this.configRepository.deleteByIdConfigurations(id);
     if (result.deletedCount === 0) {
       throw new NotFoundException(`Configuration with ID ${id} not found`);
     }
@@ -64,6 +64,6 @@ export class ConfigurationService {
   }
 
   async getAllConfigurations(): Promise<Configuration[]> {
-    return this.configRepository.getAll();
+    return await this.configRepository.getAllConfigurations();
   }
 }

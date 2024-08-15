@@ -11,13 +11,13 @@ export class ConfigurationController {
   @Post()
   @UsePipes(new ValidationPipe())
   async createConfiguration( @Body() dto: UpdateConfigurationDto ): Promise<{ message: string; configuration: Configuration }> {
-    return this.configService.createConfiguration(dto);
+    return this.configService.createConfigurations(dto);
   }
 
   @Put()
   @UsePipes(new ValidationPipe())
   async updateConfiguration( @Body() dto: UpdateConfigurationDto ): Promise<{ message: string; configuration: Configuration }> {
-    return this.configService.updateConfiguration(dto);
+    return this.configService.updateConfigurations(dto);
   }
 
   @Get()

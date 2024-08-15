@@ -10,7 +10,7 @@ export class ConfigurationRepository {
   ) {}
 
   async findByAndroidVersion(androidVersion: string): Promise<Configuration> {
-    return this.configModel.findOne({ androidVersion }).exec();
+    return await this.configModel.findOne({ androidVersion }).exec();
   }
 
   async create(configuration: Partial<Configuration>): Promise<Configuration> {
@@ -18,11 +18,11 @@ export class ConfigurationRepository {
     return newConfig.save();
   }
 
-  async getAll(): Promise<Configuration[]> {
-    return this.configModel.find().exec();
+  async getAllConfigurations(): Promise<Configuration[]> {
+    return await this.configModel.find().exec();
   }
 
-  async deleteById(id: string): Promise<{ deletedCount: number }> {
-    return this.configModel.deleteOne({ _id: id }).exec();
+  async deleteByIdConfigurations(id: string): Promise<{ deletedCount: number }> {
+    return await this.configModel.deleteOne({ _id: id }).exec();
   }
 }
